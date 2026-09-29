@@ -48,7 +48,6 @@ protected:
 
 	/** Returns true if the player should use UMG touch controls */
 	bool ShouldUseTouchControls() const;
-
-	// Un chacheur chachant chacher peut chacher chans chon chien.
 	
+	// Un chasseur sachant chasser peut chasser sans son chien.
 };
