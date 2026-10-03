@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
@@ -18,15 +17,13 @@ public:
 	
 	// Composantes
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	UBoxComponent* LaBoiteDeCollision;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UStaticMeshComponent* LeMaillageStatique;
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	
 };

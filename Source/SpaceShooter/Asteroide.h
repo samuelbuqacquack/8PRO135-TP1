@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BoxComponent.h"
+#include "Vaisseau.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
 #include "Asteroide.generated.h"
 
@@ -16,20 +17,26 @@ public:
 	// Sets default values for this actor's properties
 	AAsteroide();
 	
+	// Choses à spawner
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> Particules;
+	
 	// Composantes
 	UPROPERTY (BlueprintReadWrite, EditAnywhere)
-	UBoxComponent* LaBoiteDeCollision;
+	USphereComponent* LesCollisions;
 	UPROPERTY (BlueprintReadWrite, EditAnywhere)
 	UStaticMeshComponent* LeMaillageStatique;
-	//UPROPERTY (BlueprintReadWrite, EditAnywhere)
-	//UPhysicsConstraintComponent* LesContraintesPhysiques;
-
+	
+	// Sons à jouer
+	UPROPERTY(EditAnywhere)
+	USoundBase* SonMort;
+	
 	// Classes à connaître
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> Joueur;
 	
 	// Variables
-	int8 PointsDeVie;
+	int8 Energie;
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -41,5 +48,6 @@ protected:
 private:
 	UFUNCTION()
 	void PasseParDessus(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	
+	AVaisseau* LeVaisseau;
 };

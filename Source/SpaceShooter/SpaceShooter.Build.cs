@@ -21,7 +21,8 @@ public class SpaceShooter : ModuleRules
 			"Slate"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		//PrivateDependencyModuleNames.AddRange(new string[] { "RiderLink", "RiderLink", "Niagara" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Niagara" });
 
 		PublicIncludePaths.AddRange(new string[] {
 			"SpaceShooter",
