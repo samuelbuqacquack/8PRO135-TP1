@@ -3,15 +3,9 @@
 
 #include "Asteroide.h"
 
-#include <string>
-
-#include "BlendSpaceAnalysis.h"
+#include "Projectile.h"
 #include "Vaisseau.h"
-#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "PhysicsEngine/PhysicsConstraintComponent.h"
-#include "PhysicsEngine/PhysicsSettings.h"
-
 
 // Sets default values
 AAsteroide::AAsteroide()
@@ -19,17 +13,14 @@ AAsteroide::AAsteroide()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	LaBoiteDeCollision = CreateDefaultSubobject<UBoxComponent>(FName("LaBoiteDeCollision"));
-	LaBoiteDeCollision->InitBoxExtent(FVector(100.0f, 100.0f, 100.0f));	
-	LaBoiteDeCollision->SetupAttachment(RootComponent);
-	
+	LesCollisions = CreateDefaultSubobject<USphereComponent>(FName("LesCollisions"));
+	SetRootComponent(LesCollisions);
+
 	LeMaillageStatique = CreateDefaultSubobject<UStaticMeshComponent>(FName("LeMaillageStatique"));
-	LeMaillageStatique->SetupAttachment(LaBoiteDeCollision);
-	
-	//LesContraintesPhysiques->SetupAttachment(RootComponent);
+	LeMaillageStatique->SetupAttachment(LesCollisions);
 	
 	FRandomStream Stream(FPlatformTime::Seconds());
-	PointsDeVie = Stream.RandRange(0,10);
+	Energie = Stream.RandRange(0,3);
 }
 
 // Called when the game starts or when spawned
@@ -37,8 +28,10 @@ void AAsteroide::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	LeVaisseau = Cast<AVaisseau>(UGameplayStatics::GetActorOfClass(GetWorld(), AVaisseau::StaticClass()));
+	
 	// Lie la fonction d'overlap à son événement
-	LaBoiteDeCollision->OnComponentBeginOverlap.AddDynamic(this,&AAsteroide::PasseParDessus);
+	LesCollisions->OnComponentBeginOverlap.AddDynamic(this,&AAsteroide::PasseParDessus);
 	
 	FRandomStream Stream(FPlatformTime::Seconds());
 	
@@ -61,21 +54,51 @@ void AAsteroide::BeginPlay()
 	Direction.Normalize();
 
 	// Calcule la vitesse
-	float Vitesse = Stream.FRandRange(500.0f, 2000.0f);
+	float Vitesse = Stream.FRandRange(500.0f, 1500.0f);
 	
-	LaBoiteDeCollision->SetPhysicsLinearVelocity(Direction * Vitesse);
+	// Pivote au hasard	
+	LesCollisions->SetPhysicsAngularVelocityInDegrees(
+		FVector(
+			Stream.FRandRange(0.0f, 180.0f),
+			Stream.FRandRange(0.0f, 180.0f),
+			Stream.FRandRange(0.0f, 180.0f)),
+		false);
+	
+	LesCollisions->SetPhysicsLinearVelocity(Direction * Vitesse);
 }
 
 void AAsteroide::PasseParDessus(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor,
 	class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (AVaisseau* leVaisseau = Cast<AVaisseau>(OtherActor))
+	if (Cast<AVaisseau>(OtherActor) == LeVaisseau)
 	{
-		leVaisseau->PerdUneVie();
+		if (LeVaisseau)
+		{
+			LeVaisseau->PerdUneVie();
+		}
 	}
-	else
-	{
-		Destroy();
+	else if (AProjectile* UnProjectile = Cast<AProjectile>(OtherActor)){
+		UnProjectile->Destroy();
+		Energie--;
+		if (Energie <= 0)
+		{
+			if (LeVaisseau)
+			{
+				LeVaisseau->GagneUnPoint();
+			}
+			if (SonMort)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), SonMort, 1.0f, 1.0f, 0.0f);				
+			}
+			if (Particules)
+			{
+				FActorSpawnParameters SpawnInfo;
+				SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				GetWorld()->SpawnActor<AActor>(Particules, GetActorLocation(), 
+					FRotator(FRotator::ZeroRotator), SpawnInfo);
+			}			
+			Destroy();
+		}
 	}
 }
 

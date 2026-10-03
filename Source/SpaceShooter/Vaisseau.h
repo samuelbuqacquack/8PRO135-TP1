@@ -6,7 +6,7 @@
 #include "InputAction.h"
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
-#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/Pawn.h"
 #include "Vaisseau.generated.h"
@@ -21,21 +21,37 @@ public:
 	AVaisseau();
 	
 	// Composantes
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	UBoxComponent* LaBoiteDeCollision;
+	UPROPERTY (BlueprintReadWrite, EditAnywhere)
+	USphereComponent* LesCollisions;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UStaticMeshComponent* LeMaillageStatique;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UFloatingPawnMovement* LeMouvement;
 	
-	// Choses à connaître
+	// Choses à spawner
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> Projectile;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> Particules;
+
+	// Sons à jouer
+	UPROPERTY(EditAnywhere)
+	USoundBase* SonShoot;
+	UPROPERTY(EditAnywhere)
+	USoundBase* SonTouche;
+	UPROPERTY(EditAnywhere)
+	USoundBase* SonMort;
+	
+	UPROPERTY(BlueprintReadOnly)	
+	int32 Chances = 3;
+	UPROPERTY(BlueprintReadOnly)
+	int32 Points = 0;
+
+	void PerdUneVie();
+	void GagneUnPoint();
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-	void PerdUneVie();
 
 protected:
 	// Called when the game starts or when spawned
@@ -63,6 +79,9 @@ protected:
 	void Shoot(const FInputActionValue& Value);
 	
 private:
-	// Variables
-	int8 PointsDeVie;
+	bool touche;
+	float toucheEnd;
+	FTimerHandle TimerHandle;
+	void Flashe();
+	void Meurt();
 };

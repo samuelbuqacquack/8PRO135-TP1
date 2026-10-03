@@ -3,20 +3,14 @@
 
 #include "Projectile.h"
 
-#include "Components/BoxComponent.h"
-
-
 // Sets default values
 AProjectile::AProjectile()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	LaBoiteDeCollision = CreateDefaultSubobject<UBoxComponent>(FName("LaBoiteDeCollision"));
-	LaBoiteDeCollision->SetupAttachment(RootComponent);
-	
 	LeMaillageStatique = CreateDefaultSubobject<UStaticMeshComponent>(FName("LeMaillageStatique"));
-	LeMaillageStatique->SetupAttachment(LaBoiteDeCollision);	
+	SetRootComponent(LeMaillageStatique);
 }
 
 // Called when the game starts or when spawned

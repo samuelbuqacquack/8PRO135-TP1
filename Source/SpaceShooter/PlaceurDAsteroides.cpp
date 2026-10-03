@@ -59,7 +59,7 @@ void APlaceurDAsteroides::Place()
 			RotationAuHasard, SpawnInfo);
 		
 		GetWorld()->GetTimerManager().SetTimer( TimerHandle, this,
-			&APlaceurDAsteroides::Place, FMath::FRandRange(0.5f, 1.0f), false);
+			&APlaceurDAsteroides::Place, FMath::FRandRange(0.5f, 1.5f), false);
 	}
 }
 
